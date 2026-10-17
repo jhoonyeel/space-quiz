@@ -343,6 +343,124 @@
             0%, 100% { transform: translateY(0) rotate(0deg); }
             50% { transform: translateY(-8px) rotate(10deg); }
         }
+
+        .statistics {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .statistics-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #1a1a2e;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .statistics-title {
+                color: #e0e0e0;
+            }
+        }
+
+        .review-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .review-list {
+                border-color: #333;
+            }
+        }
+
+        .review-item {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .review-item {
+                border-bottom-color: #333;
+            }
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+        }
+
+        .review-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .review-content {
+            flex: 1;
+        }
+
+        .review-number {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .review-number {
+                color: #666;
+            }
+        }
+
+        .review-question {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1a1a2e;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .review-question {
+                color: #e0e0e0;
+            }
+        }
+
+        .review-answer {
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: #666;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .review-answer {
+                color: #aaa;
+            }
+        }
+
+        .my-answer {
+            color: #ef4444;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .my-answer {
+                color: #fca5a5;
+            }
+        }
+
+        .correct-answer {
+            color: #10b981;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .correct-answer {
+                color: #6ee7b7;
+            }
+        }
     </style>
 </head>
 <body>
@@ -375,6 +493,10 @@
             <div class="results-emoji" id="emoji">🎉</div>
             <div class="results-score" id="finalScore"></div>
             <div class="results-text" id="resultMessage"></div>
+            <div class="statistics" id="statistics">
+                <div class="statistics-title">상세 결과</div>
+                <div class="review-list" id="reviewList"></div>
+            </div>
             <button class="restart-btn" onclick="location.reload()">다시 시작하기</button>
         </div>
     </div>
@@ -436,6 +558,7 @@
         let currentQuestion = 0;
         let score = 0;
         let isAnswered = false;
+        let userAnswers = [];
 
         function updateProgress() {
             const progress = ((currentQuestion) / quizData.length) * 100;
@@ -472,7 +595,15 @@
 
             options.forEach(option => option.disabled = true);
 
-            if (index === correctIndex) {
+            const isCorrect = index === correctIndex;
+            userAnswers.push({
+                questionIndex: currentQuestion,
+                userAnswer: index,
+                correctAnswer: correctIndex,
+                isCorrect: isCorrect
+            });
+
+            if (isCorrect) {
                 options[index].classList.add('correct');
                 document.getElementById('feedback').textContent = '✅ 정답!';
                 score++;
@@ -521,6 +652,54 @@
 
             document.getElementById('emoji').textContent = emoji;
             document.getElementById('resultMessage').textContent = message;
+
+            displayReviewList();
+        }
+
+        function displayReviewList() {
+            const reviewList = document.getElementById('reviewList');
+            reviewList.innerHTML = '';
+
+            userAnswers.forEach((answer, index) => {
+                const quiz = quizData[answer.questionIndex];
+                const reviewItem = document.createElement('div');
+                reviewItem.className = 'review-item';
+
+                const icon = answer.isCorrect ? '✅' : '❌';
+                const iconElement = document.createElement('div');
+                iconElement.className = 'review-icon';
+                iconElement.textContent = icon;
+
+                const contentElement = document.createElement('div');
+                contentElement.className = 'review-content';
+
+                const numberElement = document.createElement('div');
+                numberElement.className = 'review-number';
+                numberElement.textContent = `문제 ${index + 1}`;
+
+                const questionElement = document.createElement('div');
+                questionElement.className = 'review-question';
+                questionElement.textContent = quiz.question;
+
+                const userAnswerElement = document.createElement('div');
+                userAnswerElement.className = 'review-answer';
+                userAnswerElement.innerHTML = `내 답: <span class="${answer.isCorrect ? 'correct-answer' : 'my-answer'}">${quiz.options[answer.userAnswer]}</span>`;
+
+                contentElement.appendChild(numberElement);
+                contentElement.appendChild(questionElement);
+                contentElement.appendChild(userAnswerElement);
+
+                if (!answer.isCorrect) {
+                    const correctAnswerElement = document.createElement('div');
+                    correctAnswerElement.className = 'review-answer';
+                    correctAnswerElement.innerHTML = `정답: <span class="correct-answer">${quiz.options[answer.correctAnswer]}</span>`;
+                    contentElement.appendChild(correctAnswerElement);
+                }
+
+                reviewItem.appendChild(iconElement);
+                reviewItem.appendChild(contentElement);
+                reviewList.appendChild(reviewItem);
+            });
         }
 
         // 시작
