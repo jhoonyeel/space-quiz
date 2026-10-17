@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>우주 탐사 퀴즈</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px 30px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .container {
+                background: #1a1a2e;
+                color: #e0e0e0;
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: transparent;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            filter: drop-shadow(0 0 12px rgba(102, 126, 234, 0.6));
+            animation: missionPulse 3s ease-in-out infinite;
+            padding: 12px 20px;
+        }
+
+        @keyframes missionPulse {
+            0%, 100% {
+                filter: drop-shadow(0 0 12px rgba(102, 126, 234, 0.6));
+            }
+            50% {
+                filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.9));
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .header h1 {
+                filter: drop-shadow(0 0 12px rgba(139, 158, 255, 0.7));
+            }
+
+            @keyframes missionPulse {
+                0%, 100% {
+                    filter: drop-shadow(0 0 12px rgba(139, 158, 255, 0.7));
+                }
+                50% {
+                    filter: drop-shadow(0 0 20px rgba(139, 158, 255, 1));
+                }
+            }
+        }
+
+        .score-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .score-counter {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .score-counter {
+                color: #8b9eff;
+            }
+        }
+
+        .progress-container {
+            margin-bottom: 25px;
+        }
+
+        .progress-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .progress-label {
+                color: #aaa;
+            }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .progress-bar {
+                background: #333;
+            }
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-content {
+            display: none;
+        }
+
+        .quiz-content.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #1a1a2e;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .question {
+                color: #e0e0e0;
+            }
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 15px;
+            background: white;
+            color: #1a1a2e;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .option {
+                border-color: #333;
+                background: #2a2a3e;
+                color: #e0e0e0;
+            }
+        }
+
+        .option:hover:not(:disabled) {
+            border-color: #667eea;
+            background: #f5f5ff;
+            transform: translateX(4px);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .option:hover:not(:disabled) {
+                border-color: #764ba2;
+                background: #3a3a4e;
+            }
+        }
+
+        .option:disabled {
+            cursor: not-allowed;
+        }
+
+        .option.correct {
+            border-color: #10b981;
+            background: #ecfdf5;
+            color: #065f46;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .option.correct {
+                background: #064e3b;
+                color: #d1fae5;
+            }
+        }
+
+        .option.incorrect {
+            border-color: #ef4444;
+            background: #fef2f2;
+            color: #7f1d1d;
+            animation: shake 0.5s ease;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .option.incorrect {
+                background: #7f1d1d;
+                color: #fecaca;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .feedback {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 40px;
+            min-height: 50px;
+            animation: popIn 0.4s ease;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+        }
+
+        .results.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .results-emoji {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .results-score {
+            font-size: 48px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .results-text {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .results-text {
+                color: #aaa;
+            }
+        }
+
+        .restart-btn {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .restart-btn:active {
+            transform: scale(0.98);
+        }
+
+        .emoji-star {
+            display: inline-block;
+            animation: float 1s ease-in-out infinite;
+        }
+
+        .emoji-star:nth-child(1) { animation-delay: 0s; }
+        .emoji-star:nth-child(2) { animation-delay: 0.2s; }
+        .emoji-star:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(10deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 우주 탐사 퀴즈</h1>
+        </div>
+
+        <div class="score-info">
+            <span>진행도</span>
+            <span class="score-counter"><span id="current">1</span>/10</span>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-label">진행률</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div id="quizContainer">
+            <div class="quiz-content active">
+                <div class="question" id="question"></div>
+                <div class="options" id="options"></div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <div class="results-emoji" id="emoji">🎉</div>
+            <div class="results-score" id="finalScore"></div>
+            <div class="results-text" id="resultMessage"></div>
+            <button class="restart-btn" onclick="location.reload()">다시 시작하기</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "태양계의 가장 큰 행성은?",
+                options: ["토성", "목성", "천왕성", "해왕성"],
+                correct: 1
+            },
+            {
+                question: "화성을 '빨간 행성'이라고 부르는 이유는?",
+                options: ["산소가 많아서", "철 산화물 때문에", "높은 온도로 인해", "자기장이 강해서"],
+                correct: 1
+            },
+            {
+                question: "지구에서 태양까지의 거리는 약 몇 백만 km?",
+                options: ["50", "150", "250", "350"],
+                correct: 1
+            },
+            {
+                question: "달이 지구를 한 바퀴 도는 데 걸리는 시간은?",
+                options: ["7일", "14일", "27.3일", "365일"],
+                correct: 2
+            },
+            {
+                question: "우리은하의 이름은?",
+                options: ["안드로메다", "삼각형은하", "은하수", "대마젤란은하"],
+                correct: 2
+            },
+            {
+                question: "국제우주정거장(ISS)의 승무원 수는?",
+                options: ["3명", "6명", "10명", "15명"],
+                correct: 1
+            },
+            {
+                question: "목성의 대적점은 무엇?",
+                options: ["위성", "거대한 폭풍", "자기장", "고리"],
+                correct: 1
+            },
+            {
+                question: "우주는 몇 년 전에 빅뱅으로 시작되었을까?",
+                options: ["약 50억 년", "약 100억 년", "약 137억 년", "약 200억 년"],
+                correct: 2
+            },
+            {
+                question: "금성의 표면 온도는 약 몇 도일까?",
+                options: ["100°C", "250°C", "460°C", "800°C"],
+                correct: 2
+            },
+            {
+                question: "블랙홀을 처음으로 촬영한 것은?",
+                options: ["2015년", "2019년", "2021년", "2023년"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        function updateProgress() {
+            const progress = ((currentQuestion) / quizData.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('current').textContent = currentQuestion + 1;
+        }
+
+        function displayQuestion() {
+            isAnswered = false;
+            const quiz = quizData[currentQuestion];
+            document.getElementById('question').textContent = quiz.question;
+            document.getElementById('feedback').textContent = '';
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            quiz.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = option;
+                button.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(button);
+            });
+
+            updateProgress();
+        }
+
+        function selectAnswer(index) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const options = document.querySelectorAll('.option');
+            const correctIndex = quizData[currentQuestion].correct;
+
+            options.forEach(option => option.disabled = true);
+
+            if (index === correctIndex) {
+                options[index].classList.add('correct');
+                document.getElementById('feedback').textContent = '✅ 정답!';
+                score++;
+            } else {
+                options[index].classList.add('incorrect');
+                options[correctIndex].classList.add('correct');
+                document.getElementById('feedback').textContent = '❌ 오답!';
+            }
+
+            setTimeout(nextQuestion, 1500);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('results').classList.add('active');
+
+            const percentage = Math.round((score / quizData.length) * 100);
+            document.getElementById('finalScore').textContent = `${score}/10 (${percentage}%)`;
+
+            let emoji, message;
+            if (percentage === 100) {
+                emoji = '🌟';
+                message = '완벽해요! 당신은 우주 전문가입니다!';
+            } else if (percentage >= 80) {
+                emoji = '🎉';
+                message = '대단해요! 우주에 대해 많이 알고 있네요!';
+            } else if (percentage >= 60) {
+                emoji = '👍';
+                message = '잘했어요! 더 알아갈 게 있네요!';
+            } else if (percentage >= 40) {
+                emoji = '🤔';
+                message = '도전할만 해요! 다시 도전해 보세요!';
+            } else {
+                emoji = '📚';
+                message = '우주의 신비에 빠져보세요!';
+            }
+
+            document.getElementById('emoji').textContent = emoji;
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        // 시작
+        displayQuestion();
+    </script>
+</body>
+</html>
