@@ -94,6 +94,7 @@
             align-items: center;
             margin-bottom: 20px;
             font-size: 14px;
+            gap: 15px;
         }
 
         .score-counter {
@@ -104,6 +105,102 @@
         @media (prefers-color-scheme: dark) {
             .score-counter {
                 color: #8b9eff;
+            }
+        }
+
+        .timer-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: #f0f4ff;
+            min-width: 80px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .timer-box {
+                background: #2a2a4e;
+            }
+        }
+
+        .timer-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .timer-label {
+                color: #999;
+            }
+        }
+
+        .timer-display {
+            font-weight: bold;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            color: #10b981;
+            transition: color 0.3s ease;
+        }
+
+        .timer-display.warning {
+            color: #f59e0b;
+        }
+
+        .timer-display.danger {
+            color: #ef4444;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .timer-display {
+                color: #6ee7b7;
+            }
+
+            .timer-display.warning {
+                color: #fbbf24;
+            }
+
+            .timer-display.danger {
+                color: #fca5a5;
+            }
+        }
+
+        .streak-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: #fef3c7;
+            min-width: 120px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .streak-box {
+                background: #5a3a1f;
+            }
+        }
+
+        .streak-label {
+            font-size: 12px;
+            color: #92400e;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .streak-label {
+                color: #fbbf24;
+            }
+        }
+
+        .streak-display {
+            font-weight: bold;
+            font-size: 16px;
+            color: #f59e0b;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .streak-display {
+                color: #fbbf24;
             }
         }
 
@@ -647,6 +744,14 @@
         <div class="score-info">
             <span>진행도</span>
             <span class="score-counter"><span id="current">1</span>/10</span>
+            <div class="timer-box">
+                <span class="timer-label">⏱️</span>
+                <span class="timer-display" id="timerDisplay">30</span>
+            </div>
+            <div class="streak-box">
+                <span class="streak-label">🔥</span>
+                <span class="streak-display" id="streakDisplay">0</span>
+            </div>
         </div>
 
         <div class="progress-container">
@@ -670,6 +775,16 @@
             <div class="results-text" id="resultMessage"></div>
             <div class="statistics" id="statistics">
                 <div class="statistics-title">상세 결과</div>
+                <div id="statsInfo" style="margin-bottom: 20px; text-align: center;">
+                    <div style="font-size: 14px; margin-bottom: 8px;">
+                        <span style="color: #666;">🔥 최고 연속 정답: </span>
+                        <span id="maxStreak" style="font-weight: bold; color: #f59e0b;">0</span>
+                    </div>
+                    <div style="font-size: 14px; color: #666;">
+                        <span>⏱️ 소요 시간: </span>
+                        <span id="elapsedTime" style="font-weight: bold; color: #667eea;">0초</span>
+                    </div>
+                </div>
                 <div class="review-list" id="reviewList"></div>
             </div>
             <button class="restart-btn" onclick="location.reload()">다시 시작하기</button>
@@ -843,10 +958,73 @@
         let selectedDifficulty = null;
         let currentQuizData = [];
 
+        // 타이머와 연속 정답 추적
+        let timeRemaining = 30;
+        let timerInterval = null;
+        let currentStreak = 0;
+        let maxStreak = 0;
+        let quizStartTime = null;
+
         function updateProgress() {
             const progress = ((currentQuestion) / currentQuizData.length) * 100;
             document.getElementById('progressFill').style.width = progress + '%';
             document.getElementById('current').textContent = currentQuestion + 1;
+        }
+
+        function startTimer() {
+            timeRemaining = 30;
+            updateTimerDisplay();
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const display = document.getElementById('timerDisplay');
+            display.textContent = Math.max(0, timeRemaining);
+
+            display.classList.remove('warning', 'danger');
+            if (timeRemaining <= 10 && timeRemaining > 0) {
+                display.classList.add('danger');
+            } else if (timeRemaining <= 20 && timeRemaining > 10) {
+                display.classList.add('warning');
+            }
+        }
+
+        function handleTimeout() {
+            if (isAnswered) return;
+
+            isAnswered = true;
+            const options = document.querySelectorAll('.option');
+            const correctIndex = currentQuizData[currentQuestion].correct;
+
+            options.forEach(option => option.disabled = true);
+
+            userAnswers.push({
+                questionIndex: currentQuestion,
+                userAnswer: -1,
+                correctAnswer: correctIndex,
+                isCorrect: false,
+                timedOut: true
+            });
+
+            options[correctIndex].classList.add('correct');
+            document.getElementById('feedback').textContent = '⏰ 시간 초과!';
+            currentStreak = 0;
+            updateStreakDisplay();
+
+            setTimeout(nextQuestion, 1500);
+        }
+
+        function updateStreakDisplay() {
+            document.getElementById('streakDisplay').textContent = currentStreak;
         }
 
         function selectDifficulty(level) {
@@ -856,12 +1034,16 @@
             score = 0;
             isAnswered = false;
             userAnswers = [];
+            currentStreak = 0;
+            maxStreak = 0;
+            quizStartTime = Date.now();
 
             document.getElementById('difficultySelection').classList.remove('active');
             document.getElementById('quizContainer').style.display = 'block';
             document.getElementById('results').classList.remove('active');
 
             displayQuestion();
+            startTimer();
         }
 
         function displayQuestion() {
@@ -882,6 +1064,7 @@
             });
 
             updateProgress();
+            startTimer();
         }
 
         function selectAnswer(index) {
@@ -905,16 +1088,23 @@
                 options[index].classList.add('correct');
                 document.getElementById('feedback').textContent = '✅ 정답!';
                 score++;
+                currentStreak++;
+                if (currentStreak > maxStreak) {
+                    maxStreak = currentStreak;
+                }
             } else {
                 options[index].classList.add('incorrect');
                 options[correctIndex].classList.add('correct');
                 document.getElementById('feedback').textContent = '❌ 오답!';
+                currentStreak = 0;
             }
 
+            updateStreakDisplay();
             setTimeout(nextQuestion, 1500);
         }
 
         function nextQuestion() {
+            clearInterval(timerInterval);
             currentQuestion++;
             if (currentQuestion < currentQuizData.length) {
                 displayQuestion();
@@ -924,11 +1114,16 @@
         }
 
         function showResults() {
+            clearInterval(timerInterval);
             document.getElementById('quizContainer').style.display = 'none';
             document.getElementById('results').classList.add('active');
 
             const percentage = Math.round((score / currentQuizData.length) * 100);
-            
+            const elapsedSeconds = Math.floor((Date.now() - quizStartTime) / 1000);
+            const minutes = Math.floor(elapsedSeconds / 60);
+            const seconds = elapsedSeconds % 60;
+            const timeString = minutes > 0 ? `${minutes}분 ${seconds}초` : `${seconds}초`;
+
             const difficultyLabels = {
                 easy: '쉬움',
                 medium: '중간',
@@ -937,6 +1132,8 @@
 
             const difficultyLabel = difficultyLabels[selectedDifficulty];
             document.getElementById('finalScore').textContent = `[${difficultyLabel}] ${score}/${currentQuizData.length} (${percentage}%)`;
+            document.getElementById('maxStreak').textContent = maxStreak;
+            document.getElementById('elapsedTime').textContent = timeString;
 
             let emoji, message;
             if (percentage === 100) {
@@ -971,7 +1168,7 @@
                 const reviewItem = document.createElement('div');
                 reviewItem.className = 'review-item';
 
-                const icon = answer.isCorrect ? '✅' : '❌';
+                const icon = answer.isCorrect ? '✅' : (answer.timedOut ? '⏰' : '❌');
                 const iconElement = document.createElement('div');
                 iconElement.className = 'review-icon';
                 iconElement.textContent = icon;
@@ -989,7 +1186,11 @@
 
                 const userAnswerElement = document.createElement('div');
                 userAnswerElement.className = 'review-answer';
-                userAnswerElement.innerHTML = `내 답: <span class="${answer.isCorrect ? 'correct-answer' : 'my-answer'}">${quiz.options[answer.userAnswer]}</span>`;
+                if (answer.timedOut) {
+                    userAnswerElement.innerHTML = `내 답: <span class="my-answer">시간 초과</span>`;
+                } else {
+                    userAnswerElement.innerHTML = `내 답: <span class="${answer.isCorrect ? 'correct-answer' : 'my-answer'}">${quiz.options[answer.userAnswer]}</span>`;
+                }
 
                 contentElement.appendChild(numberElement);
                 contentElement.appendChild(questionElement);
