@@ -144,6 +144,158 @@
             transition: width 0.3s ease;
         }
 
+        .difficulty-selection {
+            display: none;
+        }
+
+        .difficulty-selection.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .difficulty-content {
+            width: 100%;
+            text-align: center;
+        }
+
+        .difficulty-content h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #1a1a2e;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .difficulty-content h2 {
+                color: #e0e0e0;
+            }
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .difficulty-btn {
+            padding: 24px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: #1a1a2e;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .difficulty-btn {
+                border-color: #333;
+                background: #2a2a3e;
+                color: #e0e0e0;
+            }
+        }
+
+        .difficulty-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .difficulty-btn:hover {
+                border-color: #764ba2;
+                box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            }
+        }
+
+        .difficulty-btn:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .difficulty-btn:focus {
+                border-color: #fff;
+                box-shadow: 0 0 0 3px #fff;
+            }
+        }
+
+        .difficulty-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .difficulty-easy {
+            border-color: #3b82f6;
+        }
+
+        .difficulty-easy:hover {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .difficulty-easy:hover {
+                background: #1e3a5f;
+            }
+        }
+
+        .difficulty-medium {
+            border-color: #f59e0b;
+        }
+
+        .difficulty-medium:hover {
+            background: #fffbeb;
+            border-color: #f59e0b;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .difficulty-medium:hover {
+                background: #5a3a1f;
+            }
+        }
+
+        .difficulty-hard {
+            border-color: #ef4444;
+        }
+
+        .difficulty-hard:hover {
+            background: #fef2f2;
+            border-color: #ef4444;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .difficulty-hard:hover {
+                background: #5a1f1f;
+            }
+        }
+
+        .difficulty-icon {
+            font-size: 32px;
+        }
+
+        .difficulty-label {
+            display: block;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .difficulty-desc {
+            display: block;
+            font-size: 13px;
+            font-weight: 400;
+            opacity: 0.7;
+        }
+
         .quiz-content {
             display: none;
         }
@@ -351,6 +503,29 @@
             <h1>🚀 우주 탐사 퀴즈</h1>
         </div>
 
+        <div id="difficultySelection" class="difficulty-selection active">
+            <div class="difficulty-content">
+                <h2>난이도를 선택해 주세요</h2>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn difficulty-easy" onclick="selectDifficulty('easy')">
+                        <span class="difficulty-icon">⭐</span>
+                        <span class="difficulty-label">쉬움</span>
+                        <span class="difficulty-desc">기본 우주 상식</span>
+                    </button>
+                    <button class="difficulty-btn difficulty-medium" onclick="selectDifficulty('medium')">
+                        <span class="difficulty-icon">🌙</span>
+                        <span class="difficulty-label">중간</span>
+                        <span class="difficulty-desc">태양계 탐사</span>
+                    </button>
+                    <button class="difficulty-btn difficulty-hard" onclick="selectDifficulty('hard')">
+                        <span class="difficulty-icon">🔭</span>
+                        <span class="difficulty-label">어려움</span>
+                        <span class="difficulty-desc">고급 천문학</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="score-info">
             <span>진행도</span>
             <span class="score-counter"><span id="current">1</span>/10</span>
@@ -380,72 +555,194 @@
     </div>
 
     <script>
-        const quizData = [
-            {
-                question: "태양계의 가장 큰 행성은?",
-                options: ["토성", "목성", "천왕성", "해왕성"],
-                correct: 1
-            },
-            {
-                question: "화성을 '빨간 행성'이라고 부르는 이유는?",
-                options: ["산소가 많아서", "철 산화물 때문에", "높은 온도로 인해", "자기장이 강해서"],
-                correct: 1
-            },
-            {
-                question: "지구에서 태양까지의 거리는 약 몇 백만 km?",
-                options: ["50", "150", "250", "350"],
-                correct: 1
-            },
-            {
-                question: "달이 지구를 한 바퀴 도는 데 걸리는 시간은?",
-                options: ["7일", "14일", "27.3일", "365일"],
-                correct: 2
-            },
-            {
-                question: "우리은하의 이름은?",
-                options: ["안드로메다", "삼각형은하", "은하수", "대마젤란은하"],
-                correct: 2
-            },
-            {
-                question: "국제우주정거장(ISS)의 승무원 수는?",
-                options: ["3명", "6명", "10명", "15명"],
-                correct: 1
-            },
-            {
-                question: "목성의 대적점은 무엇?",
-                options: ["위성", "거대한 폭풍", "자기장", "고리"],
-                correct: 1
-            },
-            {
-                question: "우주는 몇 년 전에 빅뱅으로 시작되었을까?",
-                options: ["약 50억 년", "약 100억 년", "약 137억 년", "약 200억 년"],
-                correct: 2
-            },
-            {
-                question: "금성의 표면 온도는 약 몇 도일까?",
-                options: ["100°C", "250°C", "460°C", "800°C"],
-                correct: 2
-            },
-            {
-                question: "블랙홀을 처음으로 촬영한 것은?",
-                options: ["2015년", "2019년", "2021년", "2023년"],
-                correct: 1
-            }
-        ];
+        const quizDataByDifficulty = {
+            easy: [
+                {
+                    question: "태양계의 행성은 모두 몇 개일까요?",
+                    options: ["6개", "8개", "10개", "12개"],
+                    correct: 1
+                },
+                {
+                    question: "태양계의 가장 큰 행성은?",
+                    options: ["토성", "목성", "천왕성", "해왕성"],
+                    correct: 1
+                },
+                {
+                    question: "화성을 '빨간 행성'이라고 부르는 이유는?",
+                    options: ["산소가 많아서", "철 산화물 때문에", "높은 온도로 인해", "자기장이 강해서"],
+                    correct: 1
+                },
+                {
+                    question: "지구에서 태양까지의 거리는 약 몇 백만 km?",
+                    options: ["50", "150", "250", "350"],
+                    correct: 1
+                },
+                {
+                    question: "달이 지구를 한 바퀴 도는 데 걸리는 시간은?",
+                    options: ["7일", "14일", "27.3일", "365일"],
+                    correct: 2
+                },
+                {
+                    question: "우리은하의 이름은?",
+                    options: ["안드로메다", "삼각형은하", "은하수", "대마젤란은하"],
+                    correct: 2
+                },
+                {
+                    question: "태양의 중심 온도는 약 몇 도일까요?",
+                    options: ["약 500만 도", "약 1000만 도", "약 1500만 도", "약 2000만 도"],
+                    correct: 2
+                },
+                {
+                    question: "별은 어떤 색일 때 가장 뜨거울까요?",
+                    options: ["빨간색", "주황색", "노란색", "파란색"],
+                    correct: 3
+                },
+                {
+                    question: "목성의 대적점은 무엇?",
+                    options: ["위성", "거대한 폭풍", "자기장", "고리"],
+                    correct: 1
+                },
+                {
+                    question: "토성의 고리는 주로 무엇으로 이루어져 있을까요?",
+                    options: ["먼지", "얼음", "암석", "수증기"],
+                    correct: 1
+                }
+            ],
+            medium: [
+                {
+                    question: "금성의 표면 온도는 약 몇 도일까?",
+                    options: ["100°C", "250°C", "460°C", "800°C"],
+                    correct: 2
+                },
+                {
+                    question: "금성의 대기압은 지구의 몇 배일까요?",
+                    options: ["약 10배", "약 50배", "약 90배", "약 150배"],
+                    correct: 2
+                },
+                {
+                    question: "국제우주정거장(ISS)의 승무원 수는?",
+                    options: ["3명", "6명", "10명", "15명"],
+                    correct: 1
+                },
+                {
+                    question: "명왕성이 왜소행성으로 재분류된 연도는?",
+                    options: ["2004년", "2006년", "2008년", "2010년"],
+                    correct: 1
+                },
+                {
+                    question: "우주는 몇 년 전에 빅뱅으로 시작되었을까?",
+                    options: ["약 50억 년", "약 100억 년", "약 137억 년", "약 200억 년"],
+                    correct: 2
+                },
+                {
+                    question: "화성 표면의 평균 온도는 약 몇 도일까요?",
+                    options: ["-100°C", "-63°C", "-30°C", "0°C"],
+                    correct: 1
+                },
+                {
+                    question: "천왕성의 자전축의 특이한 점은?",
+                    options: ["매우 빠르게 자전", "옆으로 누워서 자전", "시계 반대로 자전", "자전하지 않음"],
+                    correct: 1
+                },
+                {
+                    question: "태양의 주요 구성 원소는?",
+                    options: ["산소와 질소", "수소와 헬륨", "철과 니켈", "탄소와 산소"],
+                    correct: 1
+                },
+                {
+                    question: "우리 태양은 대략 몇 살일까요?",
+                    options: ["약 30억 년", "약 46억 년", "약 60억 년", "약 80억 년"],
+                    correct: 1
+                },
+                {
+                    question: "첫 번째 인공위성 스푸트니크는 어느 나라가 발사했나요?",
+                    options: ["미국", "소련", "중국", "일본"],
+                    correct: 1
+                }
+            ],
+            hard: [
+                {
+                    question: "블랙홀을 처음으로 촬영한 것은?",
+                    options: ["2015년", "2019년", "2021년", "2023년"],
+                    correct: 1
+                },
+                {
+                    question: "중력파가 처음 검출된 연도는?",
+                    options: ["2010년", "2015년", "2016년", "2018년"],
+                    correct: 1
+                },
+                {
+                    question: "우주에서 가장 흔한 원소는?",
+                    options: ["수소", "탄소", "산소", "철"],
+                    correct: 0
+                },
+                {
+                    question: "우주 배경 복사의 온도는 약 몇 켈빈일까요?",
+                    options: ["약 2.7K", "약 5.4K", "약 10.8K", "약 27K"],
+                    correct: 0
+                },
+                {
+                    question: "우주의 가속 팽창을 일으키는 것으로 추정되는 것은?",
+                    options: ["별의 폭발", "블랙홀의 중력", "암흑 에너지", "중성자별"],
+                    correct: 2
+                },
+                {
+                    question: "중성자별의 밀도는 약 어느 정도일까요?",
+                    options: ["물의 100배", "물의 100만 배", "물의 1조 배", "물의 100조~1000조 배"],
+                    correct: 3
+                },
+                {
+                    question: "태양 흑점의 주기는 약 몇 년일까요?",
+                    options: ["약 5년", "약 11년", "약 22년", "약 33년"],
+                    correct: 1
+                },
+                {
+                    question: "엑소플래닛(외계행성)은 현재 몇 개가 발견되었을까요?",
+                    options: ["약 100개", "약 500개", "약 5000개", "약 5만 개"],
+                    correct: 2
+                },
+                {
+                    question: "태양의 주계열성 단계는 약 몇 년 동안 지속될까요?",
+                    options: ["약 100만 년", "약 1억 년", "약 100억 년", "약 1조 년"],
+                    correct: 2
+                },
+                {
+                    question: "펄서(중성자별)의 회전 주기는 약 몇일까요?",
+                    options: ["약 1초", "약 1시간", "약 1일", "약 1년"],
+                    correct: 0
+                }
+            ]
+        };
 
         let currentQuestion = 0;
         let score = 0;
         let isAnswered = false;
+        let selectedDifficulty = null;
+        let currentQuizData = [];
 
         function updateProgress() {
-            const progress = ((currentQuestion) / quizData.length) * 100;
+            const progress = ((currentQuestion) / currentQuizData.length) * 100;
             document.getElementById('progressFill').style.width = progress + '%';
             document.getElementById('current').textContent = currentQuestion + 1;
         }
 
+        function selectDifficulty(level) {
+            selectedDifficulty = level;
+            currentQuizData = quizDataByDifficulty[level];
+            currentQuestion = 0;
+            score = 0;
+            isAnswered = false;
+
+            document.getElementById('difficultySelection').classList.remove('active');
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('results').classList.remove('active');
+
+            displayQuestion();
+        }
+
         function displayQuestion() {
             isAnswered = false;
-            const quiz = quizData[currentQuestion];
+            const quiz = currentQuizData[currentQuestion];
             document.getElementById('question').textContent = quiz.question;
             document.getElementById('feedback').textContent = '';
 
@@ -468,7 +765,7 @@
             isAnswered = true;
 
             const options = document.querySelectorAll('.option');
-            const correctIndex = quizData[currentQuestion].correct;
+            const correctIndex = currentQuizData[currentQuestion].correct;
 
             options.forEach(option => option.disabled = true);
 
@@ -487,7 +784,7 @@
 
         function nextQuestion() {
             currentQuestion++;
-            if (currentQuestion < quizData.length) {
+            if (currentQuestion < currentQuizData.length) {
                 displayQuestion();
             } else {
                 showResults();
@@ -498,8 +795,16 @@
             document.getElementById('quizContainer').style.display = 'none';
             document.getElementById('results').classList.add('active');
 
-            const percentage = Math.round((score / quizData.length) * 100);
-            document.getElementById('finalScore').textContent = `${score}/10 (${percentage}%)`;
+            const percentage = Math.round((score / currentQuizData.length) * 100);
+            
+            const difficultyLabels = {
+                easy: '쉬움',
+                medium: '중간',
+                hard: '어려움'
+            };
+
+            const difficultyLabel = difficultyLabels[selectedDifficulty];
+            document.getElementById('finalScore').textContent = `[${difficultyLabel}] ${score}/${currentQuizData.length} (${percentage}%)`;
 
             let emoji, message;
             if (percentage === 100) {
@@ -524,7 +829,7 @@
         }
 
         // 시작
-        displayQuestion();
+        // 난이도 선택 화면이 처음에 표시됨
     </script>
 </body>
 </html>
